@@ -88,16 +88,16 @@ class Friendship(models.Model):
         unique_together = ('user', 'friend')
         constraints = [
             models.CheckConstraint(
-                check = models.Q(user__lt = models.F('friend')),
+                check = models.Q(user__lt = models.F('friend')) | models.Q(user__isnull = True) | models.Q(friend__isnull=True),
                 name = 'friendship_order'
             )
         ]
     
-    @staticmethod
-    def make_friends(user1, user2):
-        if user1.id > user2.id:
-            user1, user2 = user2, user1
-        return Friendship.objects.get_or_create(user=user1, friend=user2)
+    # @staticmethod
+    # def make_friends(user1, user2):
+    #     if user1.id > user2.id:
+    #         user1, user2 = user2, user1
+    #     return Friendship.objects.get_or_create(user=user1, friend=user2)
     
     def __str__(self):
         return f'{self.user} и {self.friend} - друзья'

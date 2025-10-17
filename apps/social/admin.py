@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import FriendRequset, Friendship, Follow
+from .models import FriendRequest, Friendship, Follow
 
 
-@admin.register(FriendRequset)
+@admin.register(FriendRequest)
 class FriendRequestAdmin(admin.ModelAdmin):
     list_display = ('sender', 'receiver', 'status_badge', 'created_at', 'updated_at')
     list_filter = ('status', 'created_at', 'updated_at')
