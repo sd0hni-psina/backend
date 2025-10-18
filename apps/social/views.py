@@ -44,6 +44,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
         """Otklonit drujbu"""
         friend_request = self.get_object()
         serializer = RejectFriendRequestSerializer(
+            friend_request,
             data=request.data,
             context={'request': request, 'friend_request': friend_request}
         )

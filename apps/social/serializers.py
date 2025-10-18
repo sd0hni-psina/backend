@@ -69,7 +69,7 @@ class FollowSerializer(serializers.ModelSerializer):
         if follower.id == following_id:
             raise serializers.ValidationError("You cannot follow yourself.")
         
-        if User.objects.filter(id=following_id).exists():
+        if not User.objects.filter(id=following_id).exists():
             raise serializers.ValidationError("User not found.")
         
         if Follow.objects.filter(
@@ -88,19 +88,30 @@ class AcceptFriendRequestSerializer(serializers.Serializer):
     """prinyat zapros v druz`ya"""
     
     def validate(self, attrs):
-        friend_request = self.instance
+        request = self.context.get('request')
+        friend_request = self.context.get('friend_request')
 
+        if not friend_request:
+            raise serializers.ValidationError('Запрос не найден')
+        if friend_request.receiver !=request.user:
+            raise serializers.ValidationError('Вы не можете принять запрос')
         if friend_request.status != 'pending':
-            raise serializers.ValidationError('You can only accept pending friend requests.')
-        
-        if friend_request.receiver != self.context['request'].user:
-            raise serializers.ValidationError('You are not authorized to accept this friend request.')
+            raise serializers.ValidationError('Запро с обработке')
         
         return attrs
     
     def save(self):
-        self.instance.accepted()
-        return self.instance
+        friend_request = self.context.get('friend_requset')
+        user = friend_request.receiver
+        friend = friend_request.sender
+
+        friend_request.status = 'accepted'
+        friend_request.save()
+
+        Friendship.objects.get_or_create(user=user,friend=friend)
+        Friendship.objects.get_or_create(user=friend, friend=user)
+
+        return friend_request
 
 class RejectFriendRequestSerializer(serializers.Serializer):
     """otklonit` zapros v druz`ya"""
@@ -126,7 +137,7 @@ class UnfollowSerializer(serializers.Serializer):
     def validate(self, attrs):
         follow = self.instance
 
-        if follow.follower != self.context['requset'].user:
+        if follow.follower != self.context['request'].user:
             raise serializers.ValidationError('You can only unfollow users you follow.')
         
         return attrs

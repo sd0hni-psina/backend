@@ -51,13 +51,31 @@ class FriendRequest(models.Model):
             raise ValueError("Нельзя отправить запрос самому себе.")
         super().save(*args, **kwargs)
     
-    def accepted(self):
-        self.status = 'accepted'
-        self.save()
+    def accept(self):
+        """Принять запрос в друзья"""
+        if self.status == 'pending':
+            self.status = 'accepted'
+            self.save()
+            
+            # Создаем взаимную дружбу
+            Friendship.objects.get_or_create(
+                user=self.receiver,
+                friend=self.sender
+            )
+            Friendship.objects.get_or_create(
+                user=self.sender,
+                friend=self.receiver
+            )
+            return True
+        return False
     
     def rejected(self):
-        self.status = 'rejected'
-        self.save()
+        """Отклонить запрос в друзья"""
+        if self.status == 'pending':
+            self.status = 'rejected'
+            self.save()
+            return True
+        return False 
 
     def __str__(self):
         return f'Запрос от {self.sender} к {self.receiver}'
