@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
-from .models import FriendRequset, Friendship, Follow
+from .models import FriendRequest, Friendship, Follow
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -12,7 +12,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     receiver = serializers.PrimaryKeyRelatedField(queryset=User.objects.all)
 
     class Meta:
-        model = FriendRequset
+        model = FriendRequest
         fields = ['id', 'sender', 'receiver', 'status', 'created_at']
         read_only_fields = ['status', 'created_at']
     
@@ -31,9 +31,9 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError('Youre friends')
         
-        existing_request = FriendRequset.objects.filter(
+        existing_request = FriendRequest.objects.filter(
             Q(sender=sender, receiver=receiver) | Q(sender=receiver, receiver=sender),
-            status=FriendRequset.STATUS_PENDING
+            status=FriendRequest.STATUS_PENDING
         ).exists()
         if existing_request:
             raise serializers.ValidationError('Request proccessed')
@@ -44,7 +44,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         sender = validated_data['sender']
         receiver = validated_data['receiver']
 
-        friend_request = FriendRequset.objects.create(**validated_data)
+        friend_request = FriendRequest.objects.create(**validated_data)
 
         Follow.objects.get_or_create(follower=sender, following=receiver)
 

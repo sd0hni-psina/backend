@@ -48,7 +48,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer dlya profilya polzovatelya"""
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'avatar', 'bio', 'address', 'phone', 'date_of_birth', 'company', 'location')
+        fields = ('id', 'email', 'first_name', 'last_name','address', 'phone', 'username', 'created_at', 'updated_at')
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     """Serializer dlya obnovleniya dannykh polzovatelya"""

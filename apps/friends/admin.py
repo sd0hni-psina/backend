@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import FriendRequset, Friendship, Follow
+from .models import FriendRequest, Friendship, Follow
 
 
-@admin.register(FriendRequset)
+@admin.register(FriendRequest)
 class FriendRequestAdmin(admin.ModelAdmin):
     list_display = ("id", "sender", "receiver", "status", "created_at")
     list_filter = ("status", "created_at")

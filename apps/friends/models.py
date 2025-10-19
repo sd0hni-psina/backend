@@ -6,7 +6,7 @@ from django.utils import timezone
 User = settings.AUTH_USER_MODEL
 
 
-class FriendRequset(models.Model):
+class FriendRequest(models.Model):
     """Models for request to friend"""
 
     STATUS_PENDING = 'pending'
@@ -53,7 +53,7 @@ class FriendRequset(models.Model):
         if self.status == self.STATUS_ACCEPTED:
             return None, False
         self.status = self.STATUS_ACCEPTED
-        self.save(update_fields='status')
+        self.save(update_fields=['status'])
         return self, True
     
     def rejected(self):

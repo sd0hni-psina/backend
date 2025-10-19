@@ -45,7 +45,7 @@ class PostSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
-        models = Post
+        model = Post
         fields = ['id', 'author', 'image', 'text', 'is_public', 'created_at', 'updated_at', 'likes_count', 'comment_count']
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
 

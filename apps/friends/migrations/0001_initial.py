@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='FriendRequset',
+            name='FriendRequest',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], db_index=True, default='pending', max_length=10)),
