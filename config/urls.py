@@ -24,6 +24,7 @@ urlpatterns = [
     path('users/', include('apps.users.urls')),
     path('friends/', include('apps.friends.urls')),
     path('profiles/', include('apps.profiles.urls')),
+    path('posts/', include('apps.posts.urls')),
 ]
 
 if settings.DEBUG:
