@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'apps.friends',
     'apps.profiles',
     'apps.posts',
+    'apps.notifications',
 ]
 
 AUTH_USER_MODEL = 'users.User'
