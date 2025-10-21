@@ -25,6 +25,7 @@ urlpatterns = [
     path('friends/', include('apps.friends.urls')),
     path('profiles/', include('apps.profiles.urls')),
     path('posts/', include('apps.posts.urls')),
+    path('notifications/', include('apps.notifications.urls')),
 ]
 
 if settings.DEBUG:
