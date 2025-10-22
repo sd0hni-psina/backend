@@ -6,16 +6,17 @@ User = get_user_model()
 
 
 class UserShortSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar']
+        fields = ['id', 'username', 'email']  
     
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserShortSerializer(read_only=True)
 
     class Meta:
         model = Message
-        fields = ['id', 'chat', 'sender', 'text', 'is_read', 'created_ad']
+        fields = ['id', 'chat', 'sender', 'text', 'is_read', 'created_at']  
         read_only_fields = ['id', 'sender', 'is_read', 'created_at', 'chat']
 
 class ChatSerializer(serializers.ModelSerializer):
@@ -27,7 +28,7 @@ class ChatSerializer(serializers.ModelSerializer):
         fields = ['id', 'participants', 'last_message', 'created_at']
 
     def get_last_message(self, obj):
-        last = obj.message.order_by('-created_at').first()
+        last = obj.messages.order_by('-created_at').first()  
         if last:
             return MessageSerializer(last).data
-        return None 
+        return None

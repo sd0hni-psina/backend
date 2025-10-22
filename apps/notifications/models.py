@@ -15,6 +15,7 @@ class Notification(models.Model):
         ("like", "Лайк"),
         ("comment", "Комментарий"),
         ("follow", "Подписка"),
+        ("message", 'Новое сообщение')
     ]
 
     recipient = models.ForeignKey(

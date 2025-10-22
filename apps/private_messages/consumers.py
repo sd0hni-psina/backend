@@ -7,7 +7,8 @@ from apps.notifications.utils import create_notification
 
 User = get_user_model()
 
-class ChatConsumers(AsyncWebsocketConsumer):
+class ChatConsumer(AsyncWebsocketConsumer):
+    """WebSocket Consumer для real-time чатов"""
 
     async def connect(self):
         self.chat_id = int(self.scope['url_route']['kwargs']['chat_id'])
@@ -18,22 +19,31 @@ class ChatConsumers(AsyncWebsocketConsumer):
             await self.close(code=4001)
             return
         
-        is_participant = await database_sync_to_async(self.check_participant)()
+        # Проверить что пользователь участник чата
+        is_participant = await self.check_participant()
         if not is_participant:
             await self.close(code=4003)
             return
         
+        # Добавить в группу
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
     
     async def disconnect(self, close_code):
+        """Отключиться от группы"""
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
     
-    async def receive(self, text_data = None, bytes_data = None):
-        
+    async def receive(self, text_data=None, bytes_data=None):
+        """Получить сообщение от клиента"""
         if text_data is None:
             return
-        data = json.load(text_data)
+        
+        try:
+            data = json.loads(text_data)  # ✅ json.loads() вместо json.load()
+        except json.JSONDecodeError:
+            await self.send_json({'error': 'invalid_json'})
+            return
+        
         action = data.get('action')
 
         if action == 'send_message':
@@ -42,9 +52,10 @@ class ChatConsumers(AsyncWebsocketConsumer):
                 await self.send_json({'error': 'empty_text'})
                 return
             
-            message = await database_sync_to_async(self.create_message)(self.user, text)
-
-            recipient = await database_sync_to_async(self.get_other_participant)(self.user)
+            message = await self.create_message(text)
+            
+            # Отправить уведомление получателю
+            recipient = await self.get_other_participant()
             if recipient:
                 await database_sync_to_async(create_notification)(
                     recipient=recipient,
@@ -53,10 +64,11 @@ class ChatConsumers(AsyncWebsocketConsumer):
                     content_object=message,
                 )
             
+            # Отправить всем в группе
             await self.channel_layer.group_send(
                 self.group_name,
                 {
-                    'type': 'chat_message',
+                    'type': 'chat.message',  # ✅ chat.message вместо chat_message
                     'message': {
                         'id': message.id,
                         'chat': self.chat_id,
@@ -69,31 +81,46 @@ class ChatConsumers(AsyncWebsocketConsumer):
             )
 
     async def chat_message(self, event):
-        await self.send(text_data=json.dump({'event': 'new_message', 'data': event['message']}))
-    
-    async def check_participants(self):
-        try:
-            chat = Chat.objects.get(id=self.chat_id)
-        except Chat.DoesNotExist:
-            return False
-        return chat.participants.filter(id=self.user.id).exists()
-    
-    def create_message(self, user, text):
-        chat = Chat.objects.get(id=self.chat_id)
-        message = Message.objects.create(chat=chat, sender=user, text=text)
-        return message
-    
-    def get_other_participants(self, user):
-
-        chat = Chat.objects.get(id=self.chat_id)
-        participants = list(chat.participants.exclude(id=user.id))
-        return participants[0] if participants else None
-    
-    async def send_json(self, obj):
-        await self.send(text_data=json.dumps(obj))
+        """Отправить сообщение клиенту"""
+        await self.send_json({
+            'event': 'new_message',
+            'data': event['message']
+        })
     
     async def chat_read(self, event):
+        """Отправить событие прочтения"""
         await self.send_json({
             'event': 'messages_read',
             'data': {'chat_id': event['chat_id'], 'reader_id': event['reader_id']}
         })
+    
+    async def check_participant(self):
+        """✅ Правильно: async метод с database_sync_to_async"""
+        try:
+            chat = await database_sync_to_async(Chat.objects.get)(id=self.chat_id)
+            return await database_sync_to_async(
+                lambda: chat.participants.filter(id=self.user.id).exists()
+            )()
+        except Chat.DoesNotExist:
+            return False
+    
+    async def create_message(self, text):
+        """✅ Правильно: async обёртка БД операции"""
+        def _create():
+            chat = Chat.objects.get(id=self.chat_id)
+            return Message.objects.create(chat=chat, sender=self.user, text=text)
+        
+        return await database_sync_to_async(_create)()
+    
+    async def get_other_participant(self):
+        """✅ Правильно: async метод"""
+        def _get():
+            chat = Chat.objects.get(id=self.chat_id)
+            participants = list(chat.participants.exclude(id=self.user.id))
+            return participants[0] if participants else None
+        
+        return await database_sync_to_async(_get)()
+    
+    async def send_json(self, obj):
+        """Отправить JSON"""
+        await self.send(text_data=json.dumps(obj))  # ✅ json.dumps() вместо json.dump()
