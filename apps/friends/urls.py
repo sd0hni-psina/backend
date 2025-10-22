@@ -9,7 +9,7 @@ router.register(r'request', FriendRequestViewSet, basename='friend-requests')
 
 router.register(r'', FriendshipViewSet, basename='friends')
 
-router.register(r'follow', FollowViewSet, basename='followe')
+router.register(r'follow', FollowViewSet, basename='follow')
 
 urlpatterns = [
     path('', include(router.urls)),

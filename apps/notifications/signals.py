@@ -15,7 +15,7 @@ def notify_like(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Comment)
-def notify_comment(sender, instance, created, *kwargs):
+def notify_comment(sender, instance, created, **kwargs):
     if created:
         recipient = instance.post.author
         sender_user = instance.user
@@ -28,5 +28,5 @@ def notify_friend_request(sender, instance, created, **kwargs):
     if created:
         create_notification(recipient=instance.receiver, sender=instance.sender, type='friend_request', content_object=instance)
     elif instance.status == 'accepted':
-        create_notification(recipient=instance.sender, sender=instance.recevier, type='friend_accept', content_object=instance)
+        create_notification(recipient=instance.sender, sender=instance.receiver, type='friend_accept', content_object=instance)
 

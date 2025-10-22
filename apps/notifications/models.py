@@ -24,8 +24,10 @@ class Notification(models.Model):
     )
     sender = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='sent_notifications',
+        null=True,
+        blank=True,
     )
 
     type = models.CharField(

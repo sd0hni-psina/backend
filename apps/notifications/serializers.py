@@ -9,7 +9,7 @@ User = get_user_model()
 class SenderSerializer(serializers.ModelSerializer):
     """Korotokoe predstavlenie otpravitelya uvedimleniya"""
     class Meta:
-        models = User
+        model = User
         fields = ['id', 'username']
 
 
@@ -20,7 +20,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     content_object_str = serializers.SerializerMethodField()
 
     class Meta:
-        models = Notification
+        model = Notification
         fields = ['id', 'type', 'sender', 'recipient', 'content_object_str', 'is_read', 'created_at']
 
     def get_content_object_str(self, obj):

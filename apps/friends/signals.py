@@ -19,4 +19,5 @@ def handle_friend_request_accept(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=FriendRequest)
 def handle_friendship_delete(sender, instance, **kwargs):
     with transaction.atomic():
-        Follow.objects.get_or_create(follower=instance.user1, following=instance.user2)
+        Follow.objects.filter(follower=instance.user1, following=instance.user2).delete()
+        Follow.objects.filter(follower=instance.user2, following=instance.user1).delete()

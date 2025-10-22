@@ -26,6 +26,10 @@ urlpatterns = [
     path('profiles/', include('apps.profiles.urls')),
     path('posts/', include('apps.posts.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('chats/', include('apps.private_messages.urls')),
+
+
+    path('api/', include('apps.api.urls')),
 ]
 
 if settings.DEBUG:
