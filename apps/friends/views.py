@@ -15,7 +15,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return FriendRequest.objects.filter(Q(sender=user) | Q(receiver=user))
+        return FriendRequest.objects.filter(Q(sender=user) | Q(receiver=user)).select_related('sender', 'receiver')
     
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
@@ -66,8 +66,8 @@ class FollowViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['get'], url_path='followers')
-    def followers(self, requset):
-        qs = Follow.objects.filter(following=requset.user)
+    def followers(self, request):
+        qs = Follow.objects.filter(following=request.user)
         serializer = FolloweSerializer(qs, many=True)
         return Response(serializer.data)
     @action(detail=False, methods=['get'], url_path='following')

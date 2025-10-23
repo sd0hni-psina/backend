@@ -9,7 +9,7 @@ User = get_user_model()
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     sender = serializers.HiddenField(default=serializers.CurrentUserDefault)
-    receiver = serializers.PrimaryKeyRelatedField(queryset=User.objects.all)
+    receiver = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = FriendRequest

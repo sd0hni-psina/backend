@@ -11,7 +11,7 @@ def handle_friend_request_accept(sender, instance, created, **kwargs):
         with transaction.atomic():
             Friendship.objects.get_or_create(user1=instance.sender, user2=instance.receiver)
             Follow.objects.filter(follower=instance.sender, following=instance.receiver).delete()
-            Follow.objects.filter(follower=instance.receiver, following=sender).delete()
+            Follow.objects.filter(follower=instance.receiver, following=instance.sender).delete()
 
     elif instance.status == FriendRequest.STATUS_REJECTED:
         Follow.objects.filter(follower=instance.sender, following=instance.receiver).delete()

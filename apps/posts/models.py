@@ -36,7 +36,7 @@ class Post(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'Прост {self.id} от {self.author.username}'
+        return f'Пост {self.id} от {self.author.username}' 
     
     @property
     def short_text(self):
